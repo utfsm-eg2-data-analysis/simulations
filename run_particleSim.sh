@@ -2,17 +2,18 @@
 
 function print_help()
 {
-  printf "#######################################################################\n";
-  printf "Usage:\n";
-  printf "./run_particleSim.sh --mode <mode> --Nevts <Nevts> --targ <targ> --pid <pid> --run1 <run1> --run2 <run2>\n";
-  printf "where:\n";
-  printf "<mode>  = 0 (interactive), 1 (farm)\n";
-  printf "<Nevts> = number of events to generate\n";
-  printf "<targ> = 0, 1, 2, 3, Where: (0,1,2,3) <==> (\"D\", \"C\", \"Fe\", \"Pb\")\n";
-  printf "<pid> = pid of detected particle. eg. (223,221,2212) for (omega,eta,proton)\n";
-  printf "<run1,run2> = integers >=0 to loop over\n";
-  printf "eg: ./run_particleSim.sh --mode 0 --Nevts 100 --targ 0 --pid 223 --run1 0 --run2 0\n";
-  printf "#######################################################################\n";
+  echo "#######################################################################";
+  echo "Usage:";
+  echo "./run_particleSim.sh --mode <mode> --Nevts <Nevts> --targ <targ> --pid <pid> --bkg <bkg> --run1 <run1> --run2 <run2>";
+  echo "where:";
+  echo "  <mode>  = 0 (interactive), 1 (farm)";
+  echo "  <Nevts> = number of events to generate";
+  echo "  <targ>  = selects target: (0,1,2,3) <==> (\"D\", \"C\", \"Fe\", \"Pb\")";
+  echo "  <pid>   = pid of detected particle. eg. (223,221,2212) for (omega,eta,proton)";
+  echo "  <bkg>   = 0 (generate events with at least one of selected particle in the final state), 1 (generate all particles but selected one)";
+  echo "  <run1,run2> = integers >=0 to loop over";
+  echo "eg: ./run_particleSim.sh --mode 0 --Nevts 100 --targ 0 --pid 223 --bkg 0 --run1 0 --run2 0";
+  echo "#######################################################################";
 
   exit 1;
 }
@@ -32,12 +33,14 @@ function process_args()
       targ=${arr[$((ic+1))]}
     elif [ "${arr[$ic]}" == "--pid" ]; then
       pid=${arr[$((ic+1))]}
+    elif [ "${arr[$ic]}" == "--bkg" ]; then
+      bkg=${arr[$((ic+1))]}
     elif [ "${arr[$ic]}" == "--run1" ]; then
       run1=${arr[$((ic+1))]}
     elif [ "${arr[$ic]}" == "--run2" ]; then
       run2=${arr[$((ic+1))]}
     else
-      printf "*** Aborting: Unrecognized argument: ${arr[$((ic))]} ***\n\n";
+      echo "*** Aborting: Unrecognized argument: ${arr[$((ic))]} ***";
       print_help;
     fi
     ((ic+=2))
@@ -49,27 +52,32 @@ function process_args()
 function check_args()
 {
   if [ $mode -ne 0 -a $mode -ne 1 ]; then
-    printf "*** Aborting: wrong mode value. Possible values are 0 or 1 ***\n\n";
+    echo "*** Aborting: wrong mode value. Possible values are 0 or 1 ***";
     print_help;
   fi
 
   if [ $Nevts -le 0 ]; then
-    printf "*** Aborting: Number of events should be positive ***\n\n";
+    echo "*** Aborting: Number of events should be positive ***";
     print_help;
   fi
 
   if [ $targ -lt 0 -o $targ -gt 3 ]; then
-    printf "*** Aborting: unrecognized target. Possible values are 0, 1, 2, 3 ***\n\n";
+    echo "*** Aborting: unrecognized target. Possible values are 0, 1, 2, 3 ***";
     print_help;
   fi
 
 #  if [ $pid -ne 223 -a $pid -ne 221 ]; then
-#    printf "*** Aborting: unrecognized pid. Possible values are 223 ***\n\n";
+#    echo "*** Aborting: unrecognized pid. Possible values are 223 ***";
 #    print_help;
 #  fi
 
   if [ $run1 -lt 0 -o $run2 -lt 0 ]; then
-    printf "*** Aborting: Run number should be >= 0 ***\n\n";
+    echo "*** Aborting: run number should be >= 0 ***";
+    print_help;
+  fi
+
+  if [ $bkg -lt 0 -o $bkg -gt 1 ]; then
+    echo "*** Aborting: bkg option should be 0 or 1 ***";
     print_help;
   fi
 }
@@ -78,12 +86,13 @@ function check_args()
 
 function print_args()
 {
-  echo mode:    $mode
-  echo Nevts:   $Nevts
-  echo targ:    $targ
-  echo pid:     $pid
-  echo run1:    $run1
-  echo run2:    $run2
+  echo "mode:    $mode"
+  echo "Nevts:   $Nevts"
+  echo "targ:    $targ"
+  echo "pid:     $pid"
+  echo "bkg:     $bkg"
+  echo "run1:    $run1"
+  echo "run2:    $run2"
 }
 
 #######################################################################
@@ -110,9 +119,9 @@ function get_run()
 ###############################          ##############################
 #######################################################################
 
-NARGS=12
+NARGS=14
 if [ $# -ne $NARGS ]; then
-  echo "Missing arguments. You provided $# args. It should be $NARGS.\n"
+  echo "Missing arguments. You provided $# args. It should be $NARGS."
   print_help;
 fi
 
@@ -121,14 +130,18 @@ process_args "${argArray[@]}"
 check_args
 print_args
 
-TOPOUDIR="/volatile/clas/claseg2/${USER}/particleSim"
-SIMINDIR="/home/${USER}/simulations"
+if [[ "$bkg" == "0" ]]; then
+    TOPOUDIR="/volatile/clas/claseg2/${USER}/particleSim"
+elif [[ "$bkg" == "1" ]]; then
+    TOPOUDIR="/volatile/clas/claseg2/${USER}/bkgSim"
+fi
+SIMINDIR="${HOME}/simulations"
+
 if [ ! -d $SIMINDIR ]; then
-  printf "Directory SIMINDIR:$SIMINDIR does not exist\n"
+  echo "Directory SIMINDIR:$SIMINDIR does not exist"
   exit 1
 fi
 
-sedi="sed -i "
 targName=("D"   "C"   "Fe"   "Pb")
 targType=("lt"  "st"  "st"  "st")
 targA=(    2     12    56    208)
@@ -189,7 +202,8 @@ if [ ! -f ${SIMINDIR}/recsis_eg2.tcl ]; then
 fi
 
 for (( ir=$run1; ir<=$run2; ir++ )); do
-  printf "\n";
+
+  echo ""
   srun=$(get_run "$ir")
   run="run${srun}"
 
@@ -203,10 +217,11 @@ for (( ir=$run1; ir<=$run2; ir++ )); do
     cp ${SIMINDIR}/ffread_eg2.gsim ${IFARMDIR}/${ffreadfile}
     cp ${SIMINDIR}/recsis_eg2.tcl  ${IFARMDIR}/${tclfile}
 
-    $sedi "s|^Nevts=|Nevts=${Nevts}|g"           ${simfile}
-    $sedi "s|^pid=|pid=${pid}|g"                 ${simfile}
-    $sedi "s|^targ=|targ=${targ}|g"              ${simfile}
-    $sedi "s|^SIMINDIR=|SIMINDIR=${SIMINDIR}|g"  ${simfile}
+    sed -i "s|^Nevts=|Nevts=${Nevts}|g"           ${simfile}
+    sed -i "s|^pid=|pid=${pid}|g"                 ${simfile}
+    sed -i "s|^bkg=|bkg=${bkg}|g"                 ${simfile}
+    sed -i "s|^targ=|targ=${targ}|g"              ${simfile}
+    sed -i "s|^SIMINDIR=|SIMINDIR=${SIMINDIR}|g"  ${simfile}
 
     chmod 755 ./${simfile}
     ./${simfile}
@@ -221,7 +236,7 @@ for (( ir=$run1; ir<=$run2; ir++ )); do
     jobfile="${FARMDIR}/job_particle.xml"
     proj="eg2a"
     track="analysis"
-    time="240"
+    time="360" # minutes
     diskspace="500"
     memusage="1000"
     osname="general"
@@ -242,10 +257,11 @@ for (( ir=$run1; ir<=$run2; ir++ )); do
     echo "    <Input src=\"file:${SIMINDIR}/ffread_eg2.gsim\"  dest=\"${ffreadfile}\"/>"  >> $jobfile
     echo "    <Input src=\"file:${SIMINDIR}/recsis_eg2.tcl\"   dest=\"${tclfile}\"/>"     >> $jobfile
     echo "    <Command><![CDATA["                                                         >> $jobfile
-    echo "      $sedi \"s|^Nevts=|Nevts=${Nevts}|g\"           ${simfile}"                >> $jobfile
-    echo "      $sedi \"s|^pid=|pid=${pid}|g\"                 ${simfile}"                >> $jobfile
-    echo "      $sedi \"s|^targ=|targ=${targ}|g\"              ${simfile}"                >> $jobfile
-    echo "      $sedi \"s|^SIMINDIR=|SIMINDIR=${SIMINDIR}|g\"  ${simfile}"                >> $jobfile
+    echo "      sed -i \"s|^Nevts=|Nevts=${Nevts}|g\"           ${simfile}"               >> $jobfile
+    echo "      sed -i \"s|^pid=|pid=${pid}|g\"                 ${simfile}"               >> $jobfile
+    echo "      sed -i \"s|^bkg=|bkg=${bkg}|g\"                 ${simfile}"               >> $jobfile
+    echo "      sed -i \"s|^targ=|targ=${targ}|g\"              ${simfile}"               >> $jobfile
+    echo "      sed -i \"s|^SIMINDIR=|SIMINDIR=${SIMINDIR}|g\"  ${simfile}"               >> $jobfile
     echo "      chmod 755 ./${simfile}"                                                   >> $jobfile
     echo "      sh ${simfile}"                                                            >> $jobfile
     echo "    ]]></Command>"                                                              >> $jobfile
@@ -274,6 +290,6 @@ for (( ir=$run1; ir<=$run2; ir++ )); do
 
     echo "Running job $jobfile..."
     jsub --xml $jobfile
-
   fi
+
 done
