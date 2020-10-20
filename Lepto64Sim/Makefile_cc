@@ -1,0 +1,51 @@
+CCSRCS     = $(wildcard ./src/*.cc)
+FSRCS      = $(wildcard ./src_f/*.f)
+
+VER = v02
+EXE        = lepto$(VER).exe
+
+CXX        = g++
+FF         = gfortran
+
+arch = -m32
+
+FFLAGS    =  $(arch) -g -O -fno-automatic -fno-second-underscore 
+FFLAGS    += -ffixed-line-length-none -funroll-loops -Wunused 
+FFLAGS    += -I$(CLAS_PACK)/include
+
+CCFLAGS    =  $(arch) -g -Wall -fPIC -Wno-deprecated
+CCFLAGS    += `$(ROOTSYS)/bin/root-config --cflags`
+CCFLAGS    += -I. -I./include -I$(ROOTSYS)/include -I$(CLAS_PACK)/include
+
+ROOTLIB    = `$(ROOTSYS)/bin/root-config --glibs`
+CERNLIB	   = `cernlib packlib mathlib kernlib`
+CLASLIB    = -L$(CLAS_LIB) -lbosio
+#MYLIBS     = -Wl,-rpath, -lm -lg2c -L../jetset_lib -ljetset
+MYLIBS     = -Wl,-rpath, -lm -lgfortran
+LIBS       = $(ROOTLIB) $(CERNLIB) $(CLASLIB) $(MYLIBS)
+
+CCOBJS    = $(CCSRCS:%.cc=%.o)
+FOBJS     = $(FSRCS:%.f=%.o)
+
+all: $(EXE)
+
+$(EXE): $(CCOBJS) $(FOBJS)
+	$(CXX) $(CCFLAGS) -o $@ $(CCOBJS) $(FOBJS) $(LIBS)
+
+.cc.o :
+	echo Compiling $@
+	$(CXX) $(CCFLAGS) -c $< -o $@
+
+.f.o :
+	echo Compiling $@
+	$(FF) $(FFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(EXE) $(CCOBJS)
+
+cleanall:
+	rm -f $(EXE) $(CCOBJS) $(FOBJS)
+
+echo:
+	echo $(EXE)
+
