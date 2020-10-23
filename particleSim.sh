@@ -68,9 +68,11 @@ echo
 echo "%%% Running LEPTO... %%%"
 echo "${Nevts} ${tarA} ${tarZ} ${pid}" > ./lepto.txt
 if [[ "$bkg" == "0" ]]; then
-    ${SIMINDIR}/Lepto64Sim/bin/lepto.exe | ${SIMINDIR}/leptotxt.pl | ${SOFT}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile}
+    ${SIMINDIR}/Lepto64Sim/bin/lepto.exe | ${SIMINDIR}/leptotxt.pl | ${SOFT}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # only omegas
 elif [[ "$bkg" == "1" ]]; then
-    ${SIMINDIR}/Lepto64Sim/bin/lepto_bkg.exe | ${SIMINDIR}/leptotxt.pl | ${SOFT}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile}
+    ${SIMINDIR}/Lepto64Sim/bin/lepto_bkg.exe | ${SIMINDIR}/leptotxt.pl | ${SOFT}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # no omegas
+elif [[ "$bkg" == "2" ]]; then
+    ${SIMINDIR}/Lepto64Sim/bin/lepto_bkg_v2.exe | ${SIMINDIR}/leptotxt.pl | ${SOFT}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # no omegas, no etas
 fi
 mv lepto.txt ${leptoinfile}
 echo "%%% LEPTO ended. %%%"

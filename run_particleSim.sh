@@ -10,7 +10,7 @@ function print_help()
   echo "  <Nevts> = number of events to generate";
   echo "  <targ>  = selects target: (0,1,2,3) <==> (\"D\", \"C\", \"Fe\", \"Pb\")";
   echo "  <pid>   = pid of detected particle. eg. (223,221,2212) for (omega,eta,proton)";
-  echo "  <bkg>   = 0 (generate events with at least one of selected particle in the final state), 1 (generate all particles but selected one)";
+  echo "  <bkg>   = 0 (generate events with at least one of selected particle in the final state), 1 (generate all particles but selected one), 2 (v2, prevent etas production)";
   echo "  <run1,run2> = integers >=0 to loop over";
   echo "eg: ./run_particleSim.sh --mode 0 --Nevts 100 --targ 0 --pid 223 --bkg 0 --run1 0 --run2 0";
   echo "#######################################################################";
@@ -76,8 +76,8 @@ function check_args()
     print_help;
   fi
 
-  if [ $bkg -lt 0 -o $bkg -gt 1 ]; then
-    echo "*** Aborting: bkg option should be 0 or 1 ***";
+  if [ $bkg -lt 0 -o $bkg -gt 2 ]; then
+    echo "*** Aborting: bkg option should be 0, 1 or 2 ***";
     print_help;
   fi
 }
@@ -132,7 +132,7 @@ print_args
 
 if [[ "$bkg" == "0" ]]; then
     TOPOUDIR="/volatile/clas/claseg2/${USER}/particleSim"
-elif [[ "$bkg" == "1" ]]; then
+elif [[ "$bkg" == "1" || "$bkg" == "2" ]]; then
     TOPOUDIR="/volatile/clas/claseg2/${USER}/bkgSim"
 fi
 SIMINDIR="${HOME}/simulations"
