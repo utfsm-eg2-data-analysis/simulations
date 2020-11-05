@@ -1,0 +1,27 @@
+!normal to inner radius	
+510.54
+!wrt normal to beam	
+25
+!dist. to beam	
+50.098
+!Ec inner I dim.	
+372.7841
+!Ec outer I dim.	
+406.6350
+!Ec inner J dim.	
+381.7071
+!Ec outer J dim.	
+416.3684
+!thickness of cover plate 1
+.16
+!thickness of cover plate 2
+7.62
+!thickness of cover plate 3
+.19
+!thickness of lead plates
+.22
+!thickness of scintillators
+1.0
+end
+
+

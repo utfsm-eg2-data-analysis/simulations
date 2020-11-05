@@ -8,16 +8,14 @@ BINDIR:=bin
 SRCDIRC:=src
 SRCDIRF:=src_f
 
-#APPLICATION := $(BINDIR)/lepto.exe
+APPLICATION := $(BINDIR)/lepto.exe
 #APPLICATION := $(BINDIR)/lepto_bkg.exe
-APPLICATION := $(BINDIR)/lepto_bkg_v2.exe
 vpath %.f $(SRCDIRF):.
 vpath %.cc $(SRCDIRC):.
 vpath %.o $(OBJDIR)
 
-#FSRC := qp1.f lepto-6.5.1.f pythia5721.f
+FSRC := qp1.f lepto-6.5.1.f pythia5721.f
 #FSRC := qp1_bkg.f lepto-6.5.1.f pythia5721.f
-FSRC := qp1_bkg_v2.f lepto-6.5.1.f pythia5721.f
 CSRC := csparam.cc
 FOBJS := $(FSRC:.f=.o)
 FOBJS := $(addprefix $(OBJDIR)/, $(FOBJS))

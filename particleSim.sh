@@ -68,11 +68,9 @@ echo
 echo "%%% Running LEPTO... %%%"
 echo "${Nevts} ${tarA} ${tarZ} ${pid}" > ./lepto.txt
 if [[ "$bkg" == "0" ]]; then
-    ${SIMINDIR}/Lepto64Sim/bin/lepto.exe | ${SIMINDIR}/leptotxt.pl | ${SOFT}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # only omegas
+    ${SIMINDIR}/Lepto64Sim/bin/lepto.exe | ${SIMINDIR}/leptotxt.pl | ${SIMINDIR}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # only omegas
 elif [[ "$bkg" == "1" ]]; then
-    ${SIMINDIR}/Lepto64Sim/bin/lepto_bkg.exe | ${SIMINDIR}/leptotxt.pl | ${SOFT}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # no omegas
-elif [[ "$bkg" == "2" ]]; then
-    ${SIMINDIR}/Lepto64Sim/bin/lepto_bkg_v2.exe | ${SIMINDIR}/leptotxt.pl | ${SOFT}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # no omegas, no etas
+    ${SIMINDIR}/Lepto64Sim/bin/lepto_bkg.exe | ${SIMINDIR}/leptotxt.pl | ${SIMINDIR}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # no omegas
 fi
 mv lepto.txt ${leptoinfile}
 echo "%%% LEPTO ended. %%%"
@@ -84,6 +82,7 @@ echo "%%% Running GSIM... %%%"
 sed -i "s/TGTP/TGTP ${tarA}/g"    ${ffreadfile}
 sed -i "s/VEG2/VEG2 ${tarVG2}/g"  ${ffreadfile}
 sed -i "s/TRIG/TRIG ${Nevts}/g"   ${ffreadfile}
+export CLAS_CALDB_RUNINDEX="clas_calib.RunIndex"
 ${CLAS_BIN}/gsim_bat -ffread ${ffreadfile} -mcin ${leptobosfile} -bosout ${gsimbosfile} 2>&1 | tee ${gsimlogfile}
 if [ -f "${gsimbosfile}.A00" ]; then
     mv "${gsimbosfile}.A00" ${gsimbosfile}
@@ -94,7 +93,7 @@ echo
 ##Part 4: start gpp process
 echo
 echo "%%% Running GPP... %%%"
-export CLAS_CALDB_RUNINDEX=calib_user.RunindexLorenzo
+export CLAS_CALDB_RUNINDEX="clas_user_calib.RunindexLorenzo"
 ${CLAS_BIN}/gpp -P0x1f -Y -o${gppbosfile} -a1.2 -b0.86 -c0.87 -f1. -R41147 ${gsimbosfile} 2>&1 | tee ${gpplogfile}
 if [ -f gpp.hbook ]; then
     mv gpp.hbook ${gppntpfile}
@@ -105,7 +104,7 @@ echo
 #Part 5: recsis process
 echo
 echo "%%% Running USER_ANA %%%"
-export CLAS_CALDB_RUNINDEX="calib.RunIndex"
+export CLAS_CALDB_RUNINDEX="clas_calib.RunIndex"
 sed -i "s|inputfile|inputfile ${gppbosfile};|g"                     ${tclfile}
 sed -i "s|setc chist_filename|setc chist_filename ${recntpfile};|g" ${tclfile}
 sed -i "s|setc log_file_name|setc log_file_name ${reclogfile};|g"   ${tclfile}

@@ -1,0 +1,74 @@
+!number of scintillator planes
+4
+!polar angle normal to plane i 
+25.    75.   105.  125.0
+!minimal polar angle for plane i
+ 8.  46.29  74.39  106.4
+!maximal polar angle for plane i
+48.  74.51  106.49  145.04
+!radius(smallest distance between plane i and target
+493.5  454.5  396.64  381.26
+!half-thickness of the scintillator
+2.5
+!number of counters in each plane
+23  11  11  12
+!lenght of every physical counter (57)
+32.29
+48.14
+64.00
+79.85
+95.71
+106.56
+122.42
+138.27
+154.13
+169.98 
+185.83
+201.69
+217.54 
+233.40 
+249.25 
+265.11 
+280.96 
+296.82 
+312.67 
+328.53 
+344.38 
+360.24 
+376.1 
+371.3 
+378.16 
+385.01 
+391.87 
+398.73 
+405.61 
+412.47 
+419.33 
+426.19 
+433.05 
+439.9 
+445.06 
+439.32 
+433.55 
+427.81 
+422.05 
+416.31 
+410.54 
+404.77 
+399.03 
+393.27 
+387.53 
+383.82 
+369.04 
+354.28 
+339.5 
+324.74 
+309.98 
+295.2 
+280.44 
+265.66 
+250.9 
+236.12 
+221.36
+end
+ 

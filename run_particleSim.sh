@@ -10,7 +10,7 @@ function print_help()
   echo "  <Nevts> = number of events to generate";
   echo "  <targ>  = selects target: (0,1,2,3) <==> (\"D\", \"C\", \"Fe\", \"Pb\")";
   echo "  <pid>   = pid of detected particle. eg. (223,221,2212) for (omega,eta,proton)";
-  echo "  <bkg>   = 0 (generate events with at least one of selected particle in the final state), 1 (generate all particles but selected one), 2 (v2, prevent etas production)";
+  echo "  <bkg>   = 0 (generate events with at least one of selected particle in the final state), 1 (generate all particles but selected one)";
   echo "  <run1,run2> = integers >=0 to loop over";
   echo "eg: ./run_particleSim.sh --mode 0 --Nevts 100 --targ 0 --pid 223 --bkg 0 --run1 0 --run2 0";
   echo "#######################################################################";
@@ -76,8 +76,8 @@ function check_args()
     print_help;
   fi
 
-  if [ $bkg -lt 0 -o $bkg -gt 2 ]; then
-    echo "*** Aborting: bkg option should be 0, 1 or 2 ***";
+  if [ $bkg -lt 0 -o $bkg -gt 1 ]; then
+    echo "*** Aborting: bkg option should be 0 or 1 ***";
     print_help;
   fi
 }
@@ -131,9 +131,9 @@ check_args
 print_args
 
 if [[ "$bkg" == "0" ]]; then
-    TOPOUDIR="/volatile/clas/claseg2/${USER}/particleSim"
-elif [[ "$bkg" == "1" || "$bkg" == "2" ]]; then
-    TOPOUDIR="/volatile/clas/claseg2/${USER}/bkgSim"
+    TOPOUDIR="/eos/user/${USER:0:1}/${USER}/particleSim"
+elif [[ "$bkg" == "1" ]]; then
+    TOPOUDIR="/eos/user/${USER:0:1}/${USER}/bkgSim"
 fi
 SIMINDIR="${HOME}/simulations"
 
@@ -232,64 +232,31 @@ for (( ir=$run1; ir<=$run2; ir++ )); do
     mkdir -p ${FARMDIR}
 
     cd ${FARMDIR}
+    cp ${SIMINDIR}/particleSim.sh  ${FARMDIR}/${simfile}
+    cp ${SIMINDIR}/leptotxt.pl     ${FARMDIR}/leptotxt.pl
+    cp ${SIMINDIR}/ffread_eg2.gsim ${FARMDIR}/${ffreadfile}
+    cp ${SIMINDIR}/recsis_eg2.tcl  ${FARMDIR}/${tclfile}
 
-    jobfile="${FARMDIR}/job_particle.xml"
-    proj="eg2a"
-    track="analysis"
-    time="360" # minutes
-    diskspace="500"
-    memusage="1000"
-    osname="general"
+    jobfile="${FARMDIR}/job_particle.sh"
     jobname=particleSim${tarName}_${srun}
+    memusage="512"
 
-    echo "<Request>"                                                                       > $jobfile
-    echo "  <Project name=\"$proj\"></Project>"                                           >> $jobfile
-    echo "  <Track name=\"$track\"></Track>"                                              >> $jobfile
-    echo "  <TimeLimit time=\"$time\" unit=\"minutes\"></TimeLimit>"                      >> $jobfile
-    echo "  <DiskSpace space=\"$diskspace\" unit=\"MB\"></DiskSpace>"                     >> $jobfile
-    echo "  <Memory space=\"$memusage\" unit=\"MB\"></Memory>"                            >> $jobfile
-    echo "  <CPU core=\"1\"></CPU>"                                                       >> $jobfile
-    echo "  <OS name=\"$osname\"></OS>"                                                   >> $jobfile
-    echo "  <Job>"                                                                        >> $jobfile
-    echo "    <Name name=\"${jobname}\"></Name>"                                          >> $jobfile
-    echo "    <Input src=\"file:${SIMINDIR}/particleSim.sh\"   dest=\"${simfile}\"/>"     >> $jobfile
-    echo "    <Input src=\"file:${SIMINDIR}/leptotxt.pl\"      dest=\"leptotxt.pl\"/>"    >> $jobfile
-    echo "    <Input src=\"file:${SIMINDIR}/ffread_eg2.gsim\"  dest=\"${ffreadfile}\"/>"  >> $jobfile
-    echo "    <Input src=\"file:${SIMINDIR}/recsis_eg2.tcl\"   dest=\"${tclfile}\"/>"     >> $jobfile
-    echo "    <Command><![CDATA["                                                         >> $jobfile
-    echo "      sed -i \"s|^Nevts=|Nevts=${Nevts}|g\"           ${simfile}"               >> $jobfile
-    echo "      sed -i \"s|^pid=|pid=${pid}|g\"                 ${simfile}"               >> $jobfile
-    echo "      sed -i \"s|^bkg=|bkg=${bkg}|g\"                 ${simfile}"               >> $jobfile
-    echo "      sed -i \"s|^targ=|targ=${targ}|g\"              ${simfile}"               >> $jobfile
-    echo "      sed -i \"s|^SIMINDIR=|SIMINDIR=${SIMINDIR}|g\"  ${simfile}"               >> $jobfile
-    echo "      chmod 755 ./${simfile}"                                                   >> $jobfile
-    echo "      sh ${simfile}"                                                            >> $jobfile
-    echo "    ]]></Command>"                                                              >> $jobfile
-    # echo "    <Output src=\"${leptoinfile}\"    dest=\"${FARMDIR}/${leptoinfile}\"/>"     >> $jobfile
-    # echo "    <Output src=\"${simfile}\"        dest=\"${FARMDIR}/${simfile}\"/>"         >> $jobfile
-    # echo "    <Output src=\"${ffreadfile}\"     dest=\"${FARMDIR}/${ffreadfile}\"/>"      >> $jobfile
-    # echo "    <Output src=\"${tclfile}\"        dest=\"${FARMDIR}/${tclfile}\"/>"         >> $jobfile
-    # echo "    <Output src=\"${leptobosfile}\"   dest=\"${FARMDIR}/${leptobosfile}\"/>"    >> $jobfile
-    # echo "    <Output src=\"${leptologfile}\"   dest=\"${FARMDIR}/${leptologfile}\"/>"    >> $jobfile
-    # echo "    <Output src=\"${gsimbosfile}\"    dest=\"${FARMDIR}/${gsimbosfile}\"/>"     >> $jobfile
-    # echo "    <Output src=\"${gsimlogfile}\"    dest=\"${FARMDIR}/${gsimlogfile}\"/>"     >> $jobfile
-    # echo "    <Output src=\"${gppbosfile}\"     dest=\"${FARMDIR}/${gppbosfile}\"/>"      >> $jobfile
-    # echo "    <Output src=\"${gppntpfile}\"     dest=\"${FARMDIR}/${gppntpfile}\"/>"      >> $jobfile
-    # echo "    <Output src=\"${gpplogfile}\"     dest=\"${FARMDIR}/${gpplogfile}\"/>"      >> $jobfile
-    # echo "    <Output src=\"${rechisfile}\"     dest=\"${FARMDIR}/${rechisfile}\"/>"      >> $jobfile
-    # echo "    <Output src=\"${recntpfile}\"     dest=\"${FARMDIR}/${recntpfile}\"/>"      >> $jobfile
-    # echo "    <Output src=\"${recbosfile}\"     dest=\"${FARMDIR}/${recbosfile}\"/>"      >> $jobfile
-    # echo "    <Output src=\"${reclogfile}\"     dest=\"${FARMDIR}/${reclogfile}\"/>"      >> $jobfile
-    # echo "    <Output src=\"${recsislogfile}\"  dest=\"${FARMDIR}/${recsislogfile}\"/>"   >> $jobfile
-    echo "    <Output src=\"${recrootfile}\"    dest=\"${FARMDIR}/${recrootfile}\"/>"     >> $jobfile
-    # echo "    <Output src=\"${wrdstlogfile}\"   dest=\"${FARMDIR}/${wrdstlogfile}\"/>"    >> $jobfile
-    echo "    <Stdout dest=\"${FARMDIR}/job${tarName}.out\"></Stdout>"                    >> $jobfile
-    echo "    <Stderr dest=\"${FARMDIR}/job${tarName}.err\"></Stderr>"                    >> $jobfile
-    echo "  </Job>"                                                                       >> $jobfile
-    echo "</Request>"                                                                     >> $jobfile
+    echo "#!/bin/bash"                                                 > $jobfile
+    echo "#SBATCH -J ${jobname}"                                      >> $jobfile
+    echo "#SBATCH -o ${FARMDIR}/job${tarName}.out"                    >> $jobfile
+    echo "#SBATCH -e ${FARMDIR}/job${tarName}.err"                    >> $jobfile
+    echo "#SBATCH --time=6:00:00"                                     >> $jobfile
+    echo "#SBATCH --mem=${memusage}MB"                                >> $jobfile
+    echo ""                                                           >> $jobfile
+    echo "sed -i \"s|^Nevts=|Nevts=${Nevts}|g\"           ${simfile}" >> $jobfile
+    echo "sed -i \"s|^pid=|pid=${pid}|g\"                 ${simfile}" >> $jobfile
+    echo "sed -i \"s|^bkg=|bkg=${bkg}|g\"                 ${simfile}" >> $jobfile
+    echo "sed -i \"s|^targ=|targ=${targ}|g\"              ${simfile}" >> $jobfile
+    echo "sed -i \"s|^SIMINDIR=|SIMINDIR=${SIMINDIR}|g\"  ${simfile}" >> $jobfile
+    echo "chmod 755 ./${simfile}"                                     >> $jobfile
+    echo "sh ${simfile}"                                              >> $jobfile
 
     echo "Running job $jobfile..."
-    jsub --xml $jobfile
+    sbatch $jobfile
   fi
-
 done

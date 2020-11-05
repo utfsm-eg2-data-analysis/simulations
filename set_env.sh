@@ -6,13 +6,13 @@ export ARCH="64bit"
 export ARCHT="64bit"
 
 export SIMINDIR=${HOME}/simulations
-export SOFT=/home/ahmede/software # external, ahmed dir
+export SOFT=/user/a/alaoui/software # external, ahmed dir
 
 echo ""
-echo " > SIMINDIR is set to   $SIMINDIR"
-echo " > SOFT is set to   $SOFT"
-echo " > ARCH is set to       $ARCH"
-echo " > ARCHT is set to      $ARCHT"
+echo " > SIMINDIR is set to $SIMINDIR"
+echo " > SOFT is set to     $SOFT"
+echo " > ARCH is set to     $ARCH"
+echo " > ARCHT is set to    $ARCHT"
 
 ##############
 # QT settings
@@ -24,7 +24,7 @@ echo ""
 
 export QT_VER=5.10.1 # hardcoded
 export QT_SYS=gcc_64
-export QT_TOP=/site/12gev_phys/2.3/Linux_CentOS7.2.1511-x86_64-gcc4.8.5/qt/${QT_VER}/${QT_VER}/${QT_SYS} # external
+export QT_TOP=${SOFT}/qt${QT_VER}/${QT_VER}/${QT_SYS} # ahmed dir
 export QT_BIN=${QT_TOP}/bin
 export QT_LIB=${QT_TOP}/lib
 
@@ -76,7 +76,7 @@ echo ">> Setting Environment Variables for CERN"
 echo ""
 
 export CERNVER=2005 # hardcoded
-export CERN=/apps/cernlib/x86_64_rhel7 # external
+export CERN=${SOFT}/cern # ahmed dir
 export CERN_LEVEL=$CERNVER
 export CERN_ROOT=${CERN}/${CERN_LEVEL}
 export CERN_LIB=${CERN_ROOT}/lib
@@ -132,8 +132,8 @@ echo ""
 echo ">> Setting Environment Variables for ROOT"
 echo ""
 
-export ROOTVER=6.14.04 # hardcoded
-export ROOTSYS=${SOFT}/root/${ROOTVER} # external, ahmed dir
+export ROOTVER=6.20.04 # hardcoded, should be 6.14.04
+export ROOTSYS=/user/a/alaoui/software/root/${ROOTVER} # ahmed dir
 export ROOTLIB=${ROOTSYS}/lib
 export ROOTBIN=${ROOTSYS}/bin
 export ROOTINC=${ROOTSYS}/include
@@ -298,65 +298,6 @@ else
   LD_LIBRARY_PATH=${TCL_LIB}:${LD_LIBRARY_PATH}
 fi
 
-#################
-# lhapdf setting
-#################
-
-# echo ""
-# echo " >> Setting Environment Variables for lhapdf"
-# echo ""
-# 
-# export LHAVER=6.2.3 # hardcoded
-# export LHAPDF=${SOFT}/lhapdf/${LHAVER}
-# export LHABIN=${LHAPDF}/bin
-# export LHALIB=${LHAPDF}/lib
-# export LHAPATH=${SOFT}/lhapdf/pdfsets/${LHAVER}
-# export LHAPDF_DATA_PATH=${LHAPATH}
-# 
-# if [ ! -d $LHAPDF ]; then
-#   echo "LHAPDF Error: $LHAPDF ot Found"
-#   return -1
-# fi
-# 
-# if [ ! -d $LHABIN ]; then
-#   echo "LHAPDF Error: $LHALIB Not Found"
-#   return -1
-# fi
-# 
-# if [ ! -d $LHALIB ]; then
-#   echo "LHAPDF Error: $LHABIN Not Found"
-#   return -1
-# fi
-# 
-# if [ ! -d $LHAPATH ]; then
-#   echo "LHAPDF Error: $LHAPATH Not Found"
-#   return -1
-# fi
-# 
-# echo "LHAVER               is set to ${LHAVER}"
-# echo "LHAPDF               is set to ${LHAPDF}"
-# echo "LHABIN               is set to ${LHABIN}"
-# echo "LHALIB               is set to ${LHALIB}"
-# echo "LHAPATH              is set to ${LHAPATH}"
-# 
-# if [ -z "${PATH}" ]; then
-#   PATH=${LHABIN}
-# else
-#   PATH=${LHABIN}:${PATH}
-# fi
-# 
-# if [ -z "${LIBRARY_PATH}" ]; then
-#   LIBRARY_PATH=${LHALIB}
-# else
-#   LIBRARY_PATH=${LHALIB}:${LIBRARY_PATH}
-# fi
-# 
-# if [ -z "${LD_LIBRARY_PATH}" ]; then
-#   LD_LIBRARY_PATH=${LHALIB}
-# else
-#   LD_LIBRARY_PATH=${LHALIB}:${LD_LIBRARY_PATH}
-# fi
-
 ################
 # CLAS settings
 ################
@@ -365,7 +306,7 @@ echo ""
 echo ">> Setting Environment variables for CLAS"
 echo ""
 
-export CLAS_ROOT=${SOFT}/clas_software_ver1 # external, ahmed dir
+export CLAS_ROOT=${SOFT}/clas_software_ver1 # ahmed dir
 
 export CVS_RSH="/usr/bin/ssh"
 export CVSROOT="ahmede@cvs.jlab.org:/group/clas/clas_cvs"
@@ -373,7 +314,7 @@ export TOP_DIR=${CLAS_ROOT}
 export CLAS_BUILD=${CLAS_ROOT}
 export CLAS_PACK=${CLAS_ROOT}/packages
 export CLAS_CMS=${CLAS_PACK}/cms
-export OSNAME=Linux64RHEL7 # hardcoded
+export OSNAME=`${CLAS_CMS}/uname_clas` # hardcoded, idk
 export OS_NAME=${OSNAME}
 export CLAS_TOOL=${CLAS_PACK}/ClasTool
 export CLASTOOL=${CLAS_TOOL}
@@ -386,12 +327,12 @@ export RECSIS=${CLAS_PACK}
 export COBRASYS=${CLAS_PACK}/utilities/cobra
 export CLAS_SLIB=${CLAS_ROOT}/slib/${OS_NAME}
 
-export CLAS_PARMS=/group/clas/parms
-export CLAS_CALDB_HOST=clasdb.jlab.org
-export CLAS_CALDB_USER=clasuser
-export CLAS_CALDB_DBNAME=calib
-export CLAS_CALDB_RUNINDEX="calib.RunIndex"
-export RECSIS_RUNTIME=/group/clas/clsrc/recsis/runtime
+export CLAS_PARMS=${HOME}/simulations/parms # this dir
+export CLAS_CALDB_HOST=atlasusr.fis.utfsm.cl
+export CLAS_CALDB_USER=alaoui
+export CLAS_CALDB_DBNAME=clas_calib
+export CLAS_CALDB_RUNINDEX="clas_calib.RunIndex"
+export RECSIS_RUNTIME=${HOME}/simulations/clsrc/recsis/runtime # this dir
 
 echo "CVS_RSH              is set to ${CVS_RSH}"
 echo "CVSROOT              is set to ${CVSROOT}"
