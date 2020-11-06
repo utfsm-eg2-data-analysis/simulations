@@ -1,6 +1,6 @@
 # simulations
 
-Scripts to generate and reconstruct CLAS events. Prepared for the EG2 experiment. Exclusive to run in the JLAB farm.
+Scripts to generate and reconstruct CLAS events. Prepared for the EG2 experiment. This current branch **usm** is exclusive to run in the USM farm.
 
 ## Requirements
 
@@ -22,7 +22,7 @@ Then,
 
    * Replace the content of the environment variables `SIMINDIR` and `TOPOUDIR` **(Lines 134, 136 and 138)** to point the repository and the production directory (avoid your home directory for this one)
 
-   * **Lines 236-242** allow you to set the configuration for each job. I personally recommend, for the default value of 2 hours, to generate 3500 events per job. It's highly recommended to test a few jobs before sending a large batch of jobs.
+   * **Lines 236-242** allow you to set the configuration for each job. I personally recommend, for the default value of **3 hours**, to generate **3500 events per job**. It's highly recommended to test a few jobs before sending a large batch of jobs.
 
    * You can uncomment Lines **268-285** to retrieve the intermediate files of the process.
 
@@ -42,19 +42,19 @@ where,
 
 For the interactive mode, the output files will be produced in `${TOPOUDIR}/ifarm/${run}`. And for the farm mode, they will be produced in `${TOPOUDIR}/farm/${run}`.
 
-For example, to send 10 jobs that generate 3502 events with at least one omega meson (pid = 223) in their final state, for Deuterium target, one should execute:
+For example, to send 10 jobs that generate 3500 events with at least one omega meson (pid = 223) in their final state, for Deuterium target, one should execute:
 ```
 ./run_particleSim.sh --mode 1 --Nevts 3502 --targ 0 --pid 223 --bkg 0 --run1 1 --run2 10
 ```
 
-Another example, to run a quick interactive test.
+Another example, to run a quick interactive test of 10 events.
 ```
-./run_particleSim.sh --mode 0 --Nevts 102 --targ 0 --pid 2212 --bkg 0 --run1 0 --run2 0
+./run_particleSim.sh --mode 0 --Nevts 12 --targ 0 --pid 2212 --bkg 0 --run1 0 --run2 0
 ```
 
 A more recent example, to run a quick interactive test of background simulations for eta mesons (pid = 221).
 ```
-./run_particleSim.sh --mode 0 --Nevts 102 --targ 0 --pid 221 --bkg 1 --run1 0 --run2 0
+./run_particleSim.sh --mode 0 --Nevts 12 --targ 0 --pid 221 --bkg 1 --run1 0 --run2 0
 ```
 
 Lastly, one can type `./run_particleSim.sh` with no arguments to obtain a reminder of the instructions.

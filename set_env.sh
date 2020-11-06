@@ -185,37 +185,24 @@ echo ""
 echo ">> Setting Environment Variables for MySQL"
 echo ""
 
-MYSQL=/usr/bin
-MYSQL_INCLUDE_PATH=/usr/include/mysql # external
-if [ -f /etc/os-release ]; then
-  MYSQL_LIB_PATH=/usr/lib64/mysql
-elif [ -f /etc/debian_version ]; then
-  MYSQL_LIB_PATH=/usr/lib/x86_64-linux-gnu
-elif [ `uname -s` == "Darwin" ]; then
-  MYSQL_DIR=/usr/local/Cellar/mysql/5.7.19
-  MYSQL_INCLUDE_PATH=$MYSQL_DIR/include
-  MYSQL_LIB_PATH=$MYSQL_DIR/lib
-  MYSQL=$MYSQL_DIR/bin
-fi
+export MYSQL=/usr/bin
+export MYSQL_INCLUDE_PATH=/usr/include/mysql # external
+export MYSQL_LIB_PATH=/usr/lib64/mysql
 
-if [ ! -d $MYSQL ]; then
-  echo "MYSQL Error: $MYSQL Not Found"
-  return -1
-fi
-
-if [ ! -d $MYSQL_LIB_PATH ]; then
-  echo "MYSQL Error: $MYSQL_LIB_PATH Not Found"
-  return -1
-fi
-
-if [ ! -d $MYSQL_INCLUDE_PATH ]; then
-  echo "MYSQL Error: $MYSQL_INCLUDE_PATH Not Found"
-  return -1
-fi
-
-export MYSQL_INCLUDE_PATH
-export MYSQL_LIB_PATH
-export MYSQL
+# if [ ! -d $MYSQL ]; then
+#   echo "MYSQL Error: $MYSQL Not Found"
+#   return -1
+# fi
+# 
+# if [ ! -d $MYSQL_LIB_PATH ]; then
+#   echo "MYSQL Error: $MYSQL_LIB_PATH Not Found"
+#   return -1
+# fi
+# 
+# if [ ! -d $MYSQL_INCLUDE_PATH ]; then
+#   echo "MYSQL Error: $MYSQL_INCLUDE_PATH Not Found"
+#   return -1
+# fi
 
 export MYSQLLIB=${MYSQL_LIB_PATH}
 export MYSQLBIN=${MYSQL}
@@ -255,16 +242,10 @@ echo ""
 echo ">> Setting Environment Variables for tcl/tk"
 echo ""
 
-if [ -f /etc/os-release ]; then
-  TCL_INC=/usr/include # external
-  TCL_LIB=/usr/lib64
-elif [ -f /etc/debian_version ]; then
-  TCL_INC=/usr/include/tcl$1
-  TCL_LIB=/usr/lib/x86_64-linux-gnu
-elif [ `uname -s` == "Darwin" ]; then
-  TCL_INC=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/
-  TCL_LIB=/usr/lib
-fi
+export TCL_INC=/usr/include # external
+export TCL_LIB=/usr/lib64
+export TCL_VERSION=8.5 # hardcoded
+export TCL_VER=TCL85
 
 if [ ! -d $TCL_LIB ]; then
   echo "TCL Error: $TCL_LIB Not Found"
@@ -275,11 +256,6 @@ if [ ! -d $TCL_INC ]; then
   echo "TCL Error: $TCL_INC Not Found"
   return -1
 fi
-
-export TCL_VERSION=8.5 # hardcoded
-export TCL_VER=TCL85
-export TCL_LIB
-export TCL_INC
 
 echo "TCL_VERSION          is set to ${TCL_VERSION}"
 echo "TCL_VER              is set to ${TCL_VER}"
