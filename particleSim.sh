@@ -138,10 +138,10 @@ echo "%%% WRITE_ROOT_DST ended %%%"
 echo
 
 #Part 8: remove trash files
-echo
-echo "%%% Removing trash files... %%%"
-GLOBIGNORE=${recrootfile}
-rm -v *
-unset GLOBIGNORE
-echo "%%% Everything ready, sir! %%%"
-echo
+# echo
+# echo "%%% Removing trash files... %%%"
+# GLOBIGNORE=${recrootfile}
+# rm -v *
+# unset GLOBIGNORE
+# echo "%%% Everything ready, sir! %%%"
+# echo

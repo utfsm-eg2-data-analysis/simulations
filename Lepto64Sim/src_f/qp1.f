@@ -226,7 +226,7 @@ c  200 CONTINUE
       check_pid=.FALSE.
       Neta = 0
       DO 200 Npid=1,N
-      IF(K(NPID,2).EQ.pid) THEN
+      IF(K(NPID,2).EQ.pid .AND. K(NPID,3).NE.0) THEN
          check_pid=.TRUE.
       ENDIF
  200  CONTINUE

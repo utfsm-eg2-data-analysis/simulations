@@ -15,7 +15,7 @@ One can check the difference between both codes by executing: `diff qp1.f qp1_bk
 When using the JLAB cluster, it's necessary to set some environment variables. To do so, during a bash session, execute:
 
 ```
-source ../set_env.sh
+source ../set_env_lepto.sh
 ```
 
 Then, compile by running `make`. One can comment **Lines 11 and 17** and uncomment **Lines 12 and 18** in the `Makefile` to swap between versions of `qp1`. The ideal is to compile both of them.

@@ -27,11 +27,11 @@ ROOTLIB := $(shell root-config --glibs)
 CERNLIB	:= $(shell cernlib packlib mathlib kernlib)
 CLASLIB := -L$(CLAS_LIB) -lbosio
 FFLAGS := $(arch) -g -Wall -v -O2 -ffixed-line-length-none -fno-second-underscore -fno-automatic -funroll-loops -Wunused -I$(CLAS_PACK)/include
-CXXFLAGS := $(arch) -g -c -O -Wall -fPIC  -Wno-deprecated $(shell root-config --cflags ) -I. -I./include -I$(CLAS_PACK)/include
-LDFLAGS := $(shell root-config --ldflags) -D_REENTRANT -Wall
-LIBS :=  $(ROOTLIB) -lgraflib -lpacklib -lnsl -lkernlib -lnsl -lgfortran -lXm -lX11 -lm -lz -lGui \
+CXXFLAGS := $(arch) -g -c -O -Wall -fPIC -I. -I./include -I$(CLAS_PACK)/include -Wno-deprecated $(shell root-config --cflags)
+LDFLAGS := -D_REENTRANT -Wall $(shell root-config --ldflags) 
+LIBS :=  -lgraflib -lpacklib -lnsl -lkernlib -lnsl -lgfortran -lXm -lX11 -lm -lz -lGui \
          $(CLASLIB) -L$(CERN_LIB) -lmathlib\
-         -lscaler -lc_cern -lpdflib804 -ljetset74 -lmathlib -lkernlib -ltcl8.5 -lnsl
+         -lscaler -lc_cern -lpdflib804 -ljetset74 -lmathlib -lkernlib -ltcl8.5 -lnsl $(ROOTLIB)
 
 check_dir = @test -d $1 || (mkdir $1 && echo "Creating directory: $1")
 
