@@ -192,7 +192,7 @@ c      IF(K(NPID,2).EQ.221) THEN
 c         Neta=Neta+1
 c      ENDIF
 c  200 CONTINUE
-      IF(check_pid(partpid)) THEN ! check for 221 (eta) on final state particles 223 = omega
+      IF(check_pid(partpid)) THEN ! partpid is input PID, could be 211, -211, 2212, 223, 211, etc
          GOTO 100
       ENDIF
 
@@ -226,7 +226,7 @@ c  200 CONTINUE
       check_pid=.FALSE.
       Neta = 0
       DO 200 Npid=1,N
-      IF(K(NPID,2).EQ.pid) THEN
+      IF(K(NPID,2).EQ.pid .AND. K(NPID,3).NE.0) THEN ! check if particle selected is in final state
          check_pid=.TRUE.
       ENDIF
  200  CONTINUE
