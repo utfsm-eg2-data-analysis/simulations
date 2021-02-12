@@ -235,8 +235,8 @@ for (( ir=$run1; ir<=$run2; ir++ )); do
 
     jobfile="${FARMDIR}/job_particle.xml"
     proj="eg2a"
-    track="analysis"
-    time="360" # minutes
+    track="analysis" # "analysis" or "debug"
+    time="240" # "240" or "5" minutes
     diskspace="500"
     memusage="1000"
     osname="general"
