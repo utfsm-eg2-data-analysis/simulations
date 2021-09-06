@@ -1,16 +1,22 @@
-# simulations
+simulations
+===========
 
-Scripts to generate and reconstruct CLAS events. Prepared for the EG2 experiment. This current branch **usm** is exclusive to run in the USM farm.
+Scripts to generate and reconstruct CLAS events. Prepared for the EG2 experiment.
 
 ## Requirements
 
-* A bash session
+* [env_scripts](https://github.com/utfsm-eg2-data-analysis/env_scripts)
+
+* [clas_software](https://github.com/utfsm-eg2-data-analysis/clas_software)
+
+* [Lepto64Sim](https://github.com/utfsm-eg2-data-analysis/Lepto64Sim)
 
 ## Instructions
 
-To download this repository (recommended in home directory)
+Download this repository in your `${SOFT_DIR}`.
 
 ```
+cd ${SOFT_DIR}
 git clone http://github.com/utfsm-eg2-data-analysis/simulations
 ```
 
@@ -20,44 +26,39 @@ Then,
 
 2. Make some edits to `run_particleSim.sh`:
 
-   * Replace the content of the environment variables `SIMINDIR` and `TOPOUDIR` **(Lines 134, 136 and 138)** to point the repository and the production directory (avoid your home directory for this one)
+   * Make sure `SOFTDIR` points to your software directory.
 
-   * **Lines 236-242** allow you to set the configuration for each job. I personally recommend, for the default value of **3 hours**, to generate **3500 events per job**. It's highly recommended to test a few jobs before sending a large batch of jobs.
+   * Make sure `TOPOUDIR` points to your desired output directory.
 
-   * You can uncomment Lines **268-285** to retrieve the intermediate files of the process.
+   * You can also edit the configuration of the jobs in the respective area. **Recomendation:** set **3 hours per job** as the optimal time to generate **3500 events**.
 
-3. To run the simulation type:
+3. To run the simulation, just execute:
 
    ```
-   ./run_particleSim.sh --mode <mode> --Nevts <Nevts> --targ <targ> --pid <pid> --bkg <bkg>--run1 <run1> --run2 <run2>
+   ./run_particleSim.sh --mode <mode> --Nevts <Nevts> --targ <targ> --pid <pid> --run1 <run1> --run2 <run2>
    ```
 
-where,
-*  `<mode>`  = 0 (interactive), 1 (farm)
-*  `<Nevts>` = number of events to generate
-*  `<targ>`  = 0 (Deuterium), 1 (Carbon), 2 (Iron), 3 (Lead)
-*  `<pid>`   = pid of detected particle, eg. 221 (eta), 223 (omega), 2212 (proton)
-*  `<bkg>`   = 0 (generate events with at least one of selected particle in the final state), 1 (generate all particles but selected one)
-*  `<run1, run2>` = integers to loop over (>= 0)
+   where,
+   *  `<mode>`  = 0 (interactive), 1 (farm)
+   *  `<Nevts>` = number of events to generate
+   *  `<targ>`  = 0 (Deuterium), 1 (Carbon), 2 (Iron), 3 (Lead)
+   *  `<pid>`   = pid of detected particle, eg. 221 (eta), 223 (omega), 2212 (proton)
+   *  `<run1>`  = id of initial job to loop over
+   *  `<run2>`  = id of final job
 
-For the interactive mode, the output files will be produced in `${TOPOUDIR}/ifarm/${run}`. And for the farm mode, they will be produced in `${TOPOUDIR}/farm/${run}`.
+For the interactive mode, the output files will be produced in `${TOPOUDIR}/ifarm/${targName}/${run}`. And for the farm mode, they will be produced in `${TOPOUDIR}/farm/${targName}/${run}`.
 
-For example, to send 10 jobs that generate 3500 events with at least one omega meson (pid = 223) in their final state, for Deuterium target, one should execute:
-```
-./run_particleSim.sh --mode 1 --Nevts 3502 --targ 0 --pid 223 --bkg 0 --run1 1 --run2 10
-```
+## Examples
 
-Another example, to run a quick interactive test of 10 events.
+* To send 10 jobs that generate 3500 events with at least one omega meson (pid = 223) in their final state, for Deuterium target, one should execute:
 ```
-./run_particleSim.sh --mode 0 --Nevts 12 --targ 0 --pid 2212 --bkg 0 --run1 0 --run2 0
+./run_particleSim.sh --mode 1 --Nevts 3502 --targ 0 --pid 223 --run1 1 --run2 10
 ```
 
-A more recent example, to run a quick interactive test of background simulations for eta mesons (pid = 221).
+* To run a quick interactive test of 10 events, with at least one proton in the final state:
 ```
-./run_particleSim.sh --mode 0 --Nevts 12 --targ 0 --pid 221 --bkg 1 --run1 0 --run2 0
+./run_particleSim.sh --mode 0 --Nevts 12 --targ 0 --pid 2212 --run1 0 --run2 0
 ```
-
-Lastly, one can type `./run_particleSim.sh` with no arguments to obtain a reminder of the instructions.
 
 ## Credits
 
