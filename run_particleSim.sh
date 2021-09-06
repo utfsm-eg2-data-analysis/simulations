@@ -4,40 +4,35 @@ function print_help()
 {
   echo "#######################################################################";
   echo "Usage:";
-  echo "./run_particleSim.sh --mode <mode> --Nevts <Nevts> --targ <targ> --pid <pid> --bkg <bkg> --run1 <run1> --run2 <run2>";
+  echo "./run_particleSim.sh --mode <mode> --Nevts <Nevts> --targ <targ> --pid <pid> --run1 <run1> --run2 <run2>";
   echo "where:";
   echo "  <mode>  = 0 (interactive), 1 (farm)";
   echo "  <Nevts> = number of events to generate";
   echo "  <targ>  = selects target: (0,1,2,3) <==> (\"D\", \"C\", \"Fe\", \"Pb\")";
   echo "  <pid>   = pid of detected particle. eg. (223,221,2212) for (omega,eta,proton)";
-  echo "  <bkg>   = 0 (generate events with at least one of selected particle in the final state), 1 (generate all particles but selected one)";
   echo "  <run1,run2> = integers >=0 to loop over";
-  echo "eg: ./run_particleSim.sh --mode 0 --Nevts 100 --targ 0 --pid 223 --bkg 0 --run1 0 --run2 0";
+  echo "eg: ./run_particleSim.sh --mode 0 --Nevts 12 --targ 0 --pid 223 --run1 0 --run2 0";
   echo "#######################################################################";
 
   exit 1;
 }
 
-#######################################################################
-
 function process_args()
 {
   arr=("$@")
   ic=0
-  while [ $ic -le $((${#arr[@]}-1)) ]; do
-    if [ "${arr[$ic]}" == "--mode" ]; then
+  while [[ $ic -le $((${#arr[@]}-1)) ]]; do
+    if [[ "${arr[$ic]}" == "--mode" ]]; then
       mode=${arr[$((ic+1))]}
-    elif [ "${arr[$ic]}" == "--Nevts" ]; then
+    elif [[ "${arr[$ic]}" == "--Nevts" ]]; then
       Nevts=${arr[$((ic+1))]}
-    elif [ "${arr[$ic]}" == "--targ" ]; then
+    elif [[ "${arr[$ic]}" == "--targ" ]]; then
       targ=${arr[$((ic+1))]}
-    elif [ "${arr[$ic]}" == "--pid" ]; then
+    elif [[ "${arr[$ic]}" == "--pid" ]]; then
       pid=${arr[$((ic+1))]}
-    elif [ "${arr[$ic]}" == "--bkg" ]; then
-      bkg=${arr[$((ic+1))]}
-    elif [ "${arr[$ic]}" == "--run1" ]; then
+    elif [[ "${arr[$ic]}" == "--run1" ]]; then
       run1=${arr[$((ic+1))]}
-    elif [ "${arr[$ic]}" == "--run2" ]; then
+    elif [[ "${arr[$ic]}" == "--run2" ]]; then
       run2=${arr[$((ic+1))]}
     else
       echo "*** Aborting: Unrecognized argument: ${arr[$((ic))]} ***";
@@ -47,81 +42,62 @@ function process_args()
   done
 }
 
-#######################################################################
-
 function check_args()
 {
-  if [ $mode -ne 0 -a $mode -ne 1 ]; then
+  if [[ ${mode} -ne 0 && ${mode} -ne 1 ]]; then
     echo "*** Aborting: wrong mode value. Possible values are 0 or 1 ***";
     print_help;
   fi
 
-  if [ $Nevts -le 0 ]; then
+  if [[ ${Nevts} -le 0 ]]; then
     echo "*** Aborting: Number of events should be positive ***";
     print_help;
   fi
 
-  if [ $targ -lt 0 -o $targ -gt 3 ]; then
+  if [[ ${targ} -lt 0 || ${targ} -gt 3 ]]; then
     echo "*** Aborting: unrecognized target. Possible values are 0, 1, 2, 3 ***";
     print_help;
   fi
 
-#  if [ $pid -ne 223 -a $pid -ne 221 ]; then
-#    echo "*** Aborting: unrecognized pid. Possible values are 223 ***";
-#    print_help;
-#  fi
-
-  if [ $run1 -lt 0 -o $run2 -lt 0 ]; then
+  if [[ ${run1} -lt 0 || ${run2} -lt 0 ]]; then
     echo "*** Aborting: run number should be >= 0 ***";
     print_help;
   fi
-
-  if [ $bkg -lt 0 -o $bkg -gt 1 ]; then
-    echo "*** Aborting: bkg option should be 0 or 1 ***";
-    print_help;
-  fi
 }
-
-#######################################################################
 
 function print_args()
 {
-  echo "mode:    $mode"
-  echo "Nevts:   $Nevts"
-  echo "targ:    $targ"
-  echo "pid:     $pid"
-  echo "bkg:     $bkg"
-  echo "run1:    $run1"
-  echo "run2:    $run2"
+  echo "mode  = ${mode}"
+  echo "Nevts = ${Nevts}"
+  echo "targ  = ${targ}"
+  echo "pid   = ${pid}"
+  echo "run1  = ${run1}"
+  echo "run2  = ${run2}"
 }
-
-#######################################################################
 
 function get_run()
 {
   sr=$1
   srn=""
-  if [ $sr -lt 10 ]; then
-    srn="000$sr"
-  elif [ $sr -lt 100 ]; then
-    srn="00$sr"
-  elif [ $sr -lt 1000 ]; then
-    srn="0$sr"
+  if [[ ${sr} -lt 10 ]]; then
+    srn="000${sr}"
+  elif [[ ${sr} -lt 100 ]]; then
+    srn="00${sr}"
+  elif [[ ${sr} -lt 1000 ]]; then
+    srn="0${sr}"
   else
-    srn="$sr"
+    srn="${sr}"
   fi
-  echo $srn
+  echo ${srn}
 }
 
-#######################################################################
-###############################          ##############################
-###############################   Main   ##############################
-###############################          ##############################
-#######################################################################
+################
+###   Main   ###
+################
 
-NARGS=14
-if [ $# -ne $NARGS ]; then
-  echo "Missing arguments. You provided $# args. It should be $NARGS."
+NARGS=12
+if [[ ${#} -ne ${NARGS} ]]; then
+  echo "Missing arguments. You provided ${#} args. It should be ${NARGS}."
   print_help;
 fi
 
@@ -130,17 +106,27 @@ process_args "${argArray[@]}"
 check_args
 print_args
 
-if [[ "$bkg" == "0" ]]; then
-    TOPOUDIR="/eos/user/${USER:0:1}/${USER}/particleSim"
-elif [[ "$bkg" == "1" ]]; then
-    TOPOUDIR="/eos/user/${USER:0:1}/${USER}/bkgSim"
-fi
-SIMINDIR="${HOME}/simulations"
+#####################################
+###   Set important directories   ###
+#####################################
 
-if [ ! -d $SIMINDIR ]; then
-  echo "Directory SIMINDIR:$SIMINDIR does not exist"
+export THIS_HOST=${HOSTNAME:0:3} # export HOSTNAME to farms
+export SOFTDIR=${HOME}/software # same path but different variable than SOFT_DIR
+
+if [[ "${THIS_HOST}" == "ui0" ]]; then # USM cluster
+  export TOPOUDIR=/eos/user/${USER:0:1}/${USER}/particleSim
+elif [[ "${THIS_HOST}" == "ifa" ]]; then # JLAB cluster
+  export TOPOUDIR=/volatile/clas/claseg2/${USER}
+fi
+
+if [[ ! -d ${SOFTDIR} ]]; then
+  echo "Directory SOFTDIR:${SOFTDIR} does not exist!"
   exit 1
 fi
+
+#########################
+###   Set filenames   ###
+#########################
 
 targName=("D"   "C"   "Fe"   "Pb")
 targType=("lt"  "st"  "st"  "st")
@@ -158,9 +144,11 @@ tarType="${targType[$targ]}"
 
 simfile="particleSim${tarName}.sh"
 
+leptoinfile=lepto.txt
+leptotxtfile=lepto${tarName}.txt
+leptocvsfile=lepto${tarName}.cvs
 leptobosfile=lepto${tarName}.A00
 leptologfile=lepto${tarName}.log
-leptoinfile=lepto${tarName}.txt
 
 ffreadfile="ffread_eg2${tarName}_${tarType}.gsim"
 gsimbosfile=gsim${tarName}.A00
@@ -180,83 +168,61 @@ recsislogfile=recsis${tarName}_log.log
 recrootfile=recsis${tarName}.root
 wrdstlogfile=WriteRootDst${tarName}.log
 
-#Check if input files exist
-if [ ! -f ${SIMINDIR}/particleSim.sh ]; then
-  echo "${SIMINDIR}/particleSim.sh does not exist"
-  exit 1
-fi
+######################
+###   Start loop   ###
+######################
 
-if [ ! -f ${SIMINDIR}/ffread_eg2.gsim ]; then
-  echo "${SIMINDIR}/ffread_eg2.gsim does not exist"
-  exit 1
-fi
-
-if [ ! -f ${SIMINDIR}/leptotxt.pl ]; then
-  echo "${SIMINDIR}/leptotxt.pl does not exist"
-  exit 1
-fi
-
-if [ ! -f ${SIMINDIR}/recsis_eg2.tcl ]; then
-  echo "${SIMINDIR}/recsis_eg2.tcl does not exist"
-  exit 1
-fi
-
-for (( ir=$run1; ir<=$run2; ir++ )); do
+for (( ir=${run1}; ir<=${run2}; ir++ )); do
 
   echo ""
-  srun=$(get_run "$ir")
+  srun=$(get_run "${ir}")
   run="run${srun}"
 
-  if [ "${mode}" == "0" ]; then
+  if [[ "${mode}" == "0" ]]; then
 
-    IFARMDIR="${TOPOUDIR}/ifarm/${tarName}/${run}"
-    mkdir -p ${IFARMDIR}
+    OUTDIR=${TOPOUDIR}/ifarm/${tarName}/${run}
+    mkdir -p ${OUTDIR}
+    cp ${SOFTDIR}/simulations/particleSim.sh  ${OUTDIR}/${simfile}
+    cd ${OUTDIR}
 
-    cd ${IFARMDIR}
-    cp ${SIMINDIR}/particleSim.sh  ${IFARMDIR}/${simfile}
-    cp ${SIMINDIR}/ffread_eg2.gsim ${IFARMDIR}/${ffreadfile}
-    cp ${SIMINDIR}/recsis_eg2.tcl  ${IFARMDIR}/${tclfile}
-
-    sed -i "s|^Nevts=|Nevts=${Nevts}|g"           ${simfile}
-    sed -i "s|^pid=|pid=${pid}|g"                 ${simfile}
-    sed -i "s|^bkg=|bkg=${bkg}|g"                 ${simfile}
-    sed -i "s|^targ=|targ=${targ}|g"              ${simfile}
-    sed -i "s|^SIMINDIR=|SIMINDIR=${SIMINDIR}|g"  ${simfile}
+    sed -i "s|^Nevts=|Nevts=${Nevts}|g"             ${simfile}
+    sed -i "s|^pid=|pid=${pid}|g"                   ${simfile}
+    sed -i "s|^targ=|targ=${targ}|g"                ${simfile}
+    sed -i "s|^SOFTDIR=|SOFTDIR=${SOFTDIR}|g"       ${simfile}
+    sed -i "s|^OUTDIR=|OUTDIR=${OUTDIR}|g"          ${simfile}
+    sed -i "s|^THIS_HOST=|THIS_HOST=${THIS_HOST}|g" ${simfile}
 
     chmod 755 ./${simfile}
     ./${simfile}
 
-  elif [ "${mode}" == "1" ]; then
+  elif [[ "${mode}" == "1" ]]; then
 
-    FARMDIR="${TOPOUDIR}/farm/${tarName}/${run}"
-    mkdir -p ${FARMDIR}
+    OUTDIR=${TOPOUDIR}/farm/${tarName}/${run}
+    mkdir -p ${OUTDIR}
+    cp ${SOFTDIR}/simulations/particleSim.sh  ${OUTDIR}/${simfile}
+    cd ${OUTDIR}
 
-    cd ${FARMDIR}
-    cp ${SIMINDIR}/particleSim.sh  ${FARMDIR}/${simfile}
-    cp ${SIMINDIR}/leptotxt.pl     ${FARMDIR}/leptotxt.pl
-    cp ${SIMINDIR}/ffread_eg2.gsim ${FARMDIR}/${ffreadfile}
-    cp ${SIMINDIR}/recsis_eg2.tcl  ${FARMDIR}/${tclfile}
-
-    jobfile="${FARMDIR}/job_particle.sh"
+    jobfile="${OUTDIR}/job_particle.sh"
     jobname=particleSim${tarName}_${srun}
     memusage="512"
 
-    echo "#!/bin/bash"                                                 > $jobfile
-    echo "#SBATCH -J ${jobname}"                                      >> $jobfile
-    echo "#SBATCH -o ${FARMDIR}/job${tarName}.out"                    >> $jobfile
-    echo "#SBATCH -e ${FARMDIR}/job${tarName}.err"                    >> $jobfile
-    echo "#SBATCH --time=3:00:00"                                     >> $jobfile
-    echo "#SBATCH --mem=${memusage}MB"                                >> $jobfile
-    echo ""                                                           >> $jobfile
-    echo "sed -i \"s|^Nevts=|Nevts=${Nevts}|g\"           ${simfile}" >> $jobfile
-    echo "sed -i \"s|^pid=|pid=${pid}|g\"                 ${simfile}" >> $jobfile
-    echo "sed -i \"s|^bkg=|bkg=${bkg}|g\"                 ${simfile}" >> $jobfile
-    echo "sed -i \"s|^targ=|targ=${targ}|g\"              ${simfile}" >> $jobfile
-    echo "sed -i \"s|^SIMINDIR=|SIMINDIR=${SIMINDIR}|g\"  ${simfile}" >> $jobfile
-    echo "chmod 755 ./${simfile}"                                     >> $jobfile
-    echo "sh ${simfile}"                                              >> $jobfile
+    echo "#!/bin/bash"                                                   > ${jobfile}
+    echo "#SBATCH -J ${jobname}"                                        >> ${jobfile}
+    echo "#SBATCH -o ${OUTDIR}/job${tarName}.out"                       >> ${jobfile}
+    echo "#SBATCH -e ${OUTDIR}/job${tarName}.err"                       >> ${jobfile}
+    echo "#SBATCH --time=3:00:00"                                       >> ${jobfile}
+    echo "#SBATCH --mem=${memusage}MB"                                  >> ${jobfile}
+    echo ""                                                             >> ${jobfile}
+    echo "sed -i \"s|^Nevts=|Nevts=${Nevts}|g\"             ${simfile}" >> ${jobfile}
+    echo "sed -i \"s|^pid=|pid=${pid}|g\"                   ${simfile}" >> ${jobfile}
+    echo "sed -i \"s|^targ=|targ=${targ}|g\"                ${simfile}" >> ${jobfile}
+    echo "sed -i \"s|^SOFTDIR=|SOFTDIR=${SOFTDIR}|g\"       ${simfile}" >> ${jobfile}
+    echo "sed -i \"s|^OUTDIR=|OUTDIR=${OUTDIR}|g\"          ${simfile}" >> ${jobfile}
+    echo "sed -i \"s|^THIS_HOST=|THIS_HOST=${THIS_HOST}|g\" ${simfile}" >> ${jobfile}
+    echo "chmod 755 ./${simfile}"                                       >> ${jobfile}
+    echo "sh ${simfile}"                                                >> ${jobfile}
 
-    echo "Running job $jobfile..."
-    sbatch $jobfile
+    echo "Running job ${jobfile}..."
+    sbatch ${jobfile}
   fi
 done

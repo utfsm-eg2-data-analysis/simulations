@@ -22,9 +22,10 @@ targVG2=(  1     2     2     2)
 
 Nevts=
 pid=
-bkg=
 targ=
-SIMINDIR=
+SOFTDIR=
+OUTDIR=
+THIS_HOST=
 
 tarA="${targA[$targ]}"
 tarZ="${targZ[$targ]}"
@@ -33,9 +34,11 @@ tarVG2="${targVG2[$targ]}"
 tarName="${targName[$targ]}"
 tarType="${targType[$targ]}"
 
+leptoinfile=lepto.txt
+leptotxtfile=lepto${tarName}.txt
+leptocvsfile=lepto${tarName}.cvs
 leptobosfile=lepto${tarName}.A00
 leptologfile=lepto${tarName}.log
-leptoinfile=lepto${tarName}.txt
 
 ffreadfile="ffread_eg2${tarName}_${tarType}.gsim"
 gsimbosfile=gsim${tarName}.A00
@@ -58,52 +61,69 @@ wrdstlogfile=WriteRootDst${tarName}.log
 #Part 1: Setting environment variables
 echo
 echo "%%% Setting environment variables... %%%"
-export SIMINDIR=${HOME}/simulations
-source ${SIMINDIR}/set_env.sh
+source ${SOFTDIR}/env_scripts/set_all.sh
 echo "%%% Environment variables ready. %%%"
+echo
+
+echo
+echo "%%% Creating dirs and copying necessary files... %%%"
+mkdir -vp ${OUTDIR}/lepto
+mkdir -vp ${OUTDIR}/gsim
+cp -v ${SOFTDIR}/simulations/ffread_eg2.gsim ${OUTDIR}/gsim/${ffreadfile}
+mkdir -vp ${OUTDIR}/gpp
+mkdir -vp ${OUTDIR}/user_ana
+cp -v ${SOFTDIR}/simulations/recsis_eg2.tcl ${OUTDIR}/user_ana/${tclfile}
+mkdir -vp ${OUTDIR}/clastool
+echo "%%% Dirs and files ready.%%%"
 echo
 
 #Part 2: start lepto process
 echo
 echo "%%% Running LEPTO... %%%"
-echo "${Nevts} ${tarA} ${tarZ} ${pid}" > ./lepto.txt
-if [[ "$bkg" == "0" ]]; then
-    ${SIMINDIR}/Lepto64Sim/bin/lepto.exe | ${SIMINDIR}/leptotxt.pl | ${SIMINDIR}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # only omegas
-elif [[ "$bkg" == "1" ]]; then
-    ${SIMINDIR}/Lepto64Sim/bin/lepto_bkg.exe | ${SIMINDIR}/leptotxt.pl | ${SIMINDIR}/txt2part_src/bin/txt2part.exe -o${leptobosfile} 2>&1 | tee ${leptologfile} # no omegas
-fi
-mv lepto.txt ${leptoinfile}
+cd ${OUTDIR}/lepto # enter dir
+echo "${Nevts} ${tarA} ${tarZ} ${pid}" > ${leptoinfile}
+${SOFT_DIR}/Lepto64Sim/bin/lepto.exe > ${leptotxtfile}
+perl ${SOFT_DIR}/Lepto64Sim/Utilities/leptotxt.pl < ${leptotxtfile} > ${leptocvsfile}
+${SOFT_DIR}/Lepto64Sim/Utilities/txt2part/bin/txt2part.exe -o${leptobosfile} < ${leptocvsfile} 2>&1 | tee ${leptologfile}
+cp -v ${leptobosfile} ${OUTDIR}/gsim/ # copy to next step
 echo "%%% LEPTO ended. %%%"
 echo
 
 #Part 3: start gsim process
 echo
 echo "%%% Running GSIM... %%%"
+cd ${OUTDIR}/gsim # enter dir
 sed -i "s/TGTP/TGTP ${tarA}/g"    ${ffreadfile}
 sed -i "s/VEG2/VEG2 ${tarVG2}/g"  ${ffreadfile}
 sed -i "s/TRIG/TRIG ${Nevts}/g"   ${ffreadfile}
 export CLAS_CALDB_RUNINDEX="clas_calib.RunIndex"
 ${CLAS_BIN}/gsim_bat -ffread ${ffreadfile} -mcin ${leptobosfile} -bosout ${gsimbosfile} 2>&1 | tee ${gsimlogfile}
-if [ -f "${gsimbosfile}.A00" ]; then
+if [[ -f "${gsimbosfile}.A00" ]]; then
     mv "${gsimbosfile}.A00" ${gsimbosfile}
 fi
+cp -v ${gsimbosfile} ${OUTDIR}/gpp/ # copy to next step
+rm -v ${leptobosfile} # remove copied file from prev step
 echo "%%% GSIM ready. %%%"
 echo
 
 ##Part 4: start gpp process
 echo
 echo "%%% Running GPP... %%%"
+cd ${OUTDIR}/gpp # enter dir
 export CLAS_CALDB_RUNINDEX="clas_user_calib.RunindexLorenzo"
 ${CLAS_BIN}/gpp -P0x1f -Y -o${gppbosfile} -a1.2 -b0.86 -c0.87 -f1. -R41147 ${gsimbosfile} 2>&1 | tee ${gpplogfile}
-if [ -f gpp.hbook ]; then
+if [[ -f gpp.hbook ]]; then
     mv gpp.hbook ${gppntpfile}
 fi
+cp -v ${gppbosfile} ${OUTDIR}/user_ana/ # copy to next step
+rm -v ${gsimbosfile} # remove copied file from prev step
 echo "%%% GPP ended. %%%"
 echo
 
 #Part 5: recsis process
 echo
 echo "%%% Running USER_ANA %%%"
+cd ${OUTDIR}/user_ana # enter dir
 export CLAS_CALDB_RUNINDEX="clas_calib.RunIndex"
 sed -i "s|inputfile|inputfile ${gppbosfile};|g"                     ${tclfile}
 sed -i "s|setc chist_filename|setc chist_filename ${recntpfile};|g" ${tclfile}
@@ -113,18 +133,20 @@ sed -i "s|set TargetPos(3)|set TargetPos(3) ${tarZpos};|g"          ${tclfile}
 sed -i "s|go|go ${Nevts};|g"                                        ${tclfile}
 ${CLAS_BIN}/user_ana -t ${tclfile} 2>&1 | tee ${recsislogfile}
 echo "%%% USER_ANA ended. %%%"
+cp -v ${recbosfile} ${OUTDIR}/clastool/ # copy to next step
+rm -v ${gppbosfile} # remove copied file from prev step
 echo
 
 #Part 6: convert recsis ntuple name to upper case
 echo
 echo "%%% Check USER_ANA output %%%"
-if [ ! -f ${recntpfile} ]; then
+if [[ ! -f ${recntpfile} ]]; then
     new_recntpfile=$(rep_str 6 "${recntpfile}")
-    if [ -f ${new_recntpfile} ]; then
+    if [[ -f ${new_recntpfile} ]]; then
 	mv ${new_recntpfile} ${recntpfile}
     fi
 fi
-if [ -f histo.hbook ]; then
+if [[ -f histo.hbook ]]; then
     mv histo.hbook ${rechisfile}
 fi
 echo "%%% Check USER_ANA output ended %%%"
@@ -133,15 +155,8 @@ echo
 #Part 7: start ClasTool process
 echo
 echo "%%% Running WRITE_ROOT_DST... %%%"
+cd ${OUTDIR}/clastool # enter dir
 ${CLAS_BIN}/WriteRootDst_b2r ${recbosfile} -GSIM -o ${recrootfile} 2>&1 | tee ${wrdstlogfile}
 echo "%%% WRITE_ROOT_DST ended %%%"
+rm -v ${recbosfile} # remove copied file from prev step
 echo
-
-#Part 8: remove trash files
-# echo
-# echo "%%% Removing trash files... %%%"
-# GLOBIGNORE=${recrootfile}
-# rm -v *
-# unset GLOBIGNORE
-# echo "%%% Everything ready, sir! %%%"
-# echo
