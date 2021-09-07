@@ -110,13 +110,13 @@ print_args
 ###   Differentiate particle's names   ###
 ##########################################
 
-particle_name="particle"
-if [[ "${THIS_HOST}" == "221" ]]; then
-  particle_name="eta"
-elif [[ "${THIS_HOST}" == "223" ]]; then
-  particle_name="omega"
-elif [[ "${THIS_HOST}" == "2212" ]]; then
-  particle_name="proton"
+export particle_name="particle"
+if [[ "${pid}" == "221" ]]; then
+  export particle_name="eta"
+elif [[ "${pid}" == "223" ]]; then
+  export particle_name="omega"
+elif [[ "${pid}" == "2212" ]]; then
+  export particle_name="proton"
 fi
 
 #####################################
