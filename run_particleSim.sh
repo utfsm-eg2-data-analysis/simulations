@@ -116,7 +116,7 @@ export SOFTDIR=${HOME}/software # same path but different variable than SOFT_DIR
 if [[ "${THIS_HOST}" == "ui0" ]]; then # USM cluster
   export TOPOUDIR=/eos/user/${USER:0:1}/${USER}/particleSim
 elif [[ "${THIS_HOST}" == "ifa" ]]; then # JLAB cluster
-  export TOPOUDIR=/volatile/clas/claseg2/${USER}
+  export TOPOUDIR=/volatile/clas/claseg2/${USER}/particleSim
 fi
 
 if [[ ! -d ${SOFTDIR} ]]; then

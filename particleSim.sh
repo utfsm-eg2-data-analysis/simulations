@@ -96,7 +96,11 @@ cd ${OUTDIR}/gsim # enter dir
 sed -i "s/TGTP/TGTP ${tarA}/g"    ${ffreadfile}
 sed -i "s/VEG2/VEG2 ${tarVG2}/g"  ${ffreadfile}
 sed -i "s/TRIG/TRIG ${Nevts}/g"   ${ffreadfile}
-export CLAS_CALDB_RUNINDEX="clas_calib.RunIndex"
+if [[ "${THIS_HOST}" == "ifa" ]]; then
+    export CLAS_CALDB_RUNINDEX="calib.RunIndex"
+elif [[ "${THIS_HOST}" == "ui0" ]]; then
+    export CLAS_CALDB_RUNINDEX="clas_calib.RunIndex"
+fi
 ${CLAS_BIN}/gsim_bat -ffread ${ffreadfile} -mcin ${leptobosfile} -bosout ${gsimbosfile} 2>&1 | tee ${gsimlogfile}
 if [[ -f "${gsimbosfile}.A00" ]]; then
     mv "${gsimbosfile}.A00" ${gsimbosfile}
@@ -110,7 +114,11 @@ echo
 echo
 echo "%%% Running GPP... %%%"
 cd ${OUTDIR}/gpp # enter dir
-export CLAS_CALDB_RUNINDEX="clas_user_calib.RunindexLorenzo"
+if [[ "${THIS_HOST}" == "ifa" ]]; then
+    export CLAS_CALDB_RUNINDEX="calib_user.RunindexLorenzo"
+elif [[ "${THIS_HOST}" == "ui0" ]]; then
+    export CLAS_CALDB_RUNINDEX="clas_user_calib.RunindexLorenzo"
+fi
 ${CLAS_BIN}/gpp -P0x1f -Y -o${gppbosfile} -a1.2 -b0.86 -c0.87 -f1. -R41147 ${gsimbosfile} 2>&1 | tee ${gpplogfile}
 if [[ -f gpp.hbook ]]; then
     mv gpp.hbook ${gppntpfile}
@@ -124,7 +132,11 @@ echo
 echo
 echo "%%% Running USER_ANA %%%"
 cd ${OUTDIR}/user_ana # enter dir
-export CLAS_CALDB_RUNINDEX="clas_calib.RunIndex"
+if [[ "${THIS_HOST}" == "ifa" ]]; then
+    export CLAS_CALDB_RUNINDEX="calib.RunIndex"
+elif [[ "${THIS_HOST}" == "ui0" ]]; then
+    export CLAS_CALDB_RUNINDEX="clas_calib.RunIndex"
+fi
 sed -i "s|inputfile|inputfile ${gppbosfile};|g"                     ${tclfile}
 sed -i "s|setc chist_filename|setc chist_filename ${recntpfile};|g" ${tclfile}
 sed -i "s|setc log_file_name|setc log_file_name ${reclogfile};|g"   ${tclfile}
