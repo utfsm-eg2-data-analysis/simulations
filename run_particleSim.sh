@@ -106,6 +106,19 @@ process_args "${argArray[@]}"
 check_args
 print_args
 
+##########################################
+###   Differentiate particle's names   ###
+##########################################
+
+particle_name="particle"
+if [[ "${THIS_HOST}" == "221" ]]; then
+  particle_name="eta"
+elif [[ "${THIS_HOST}" == "223" ]]; then
+  particle_name="omega"
+elif [[ "${THIS_HOST}" == "2212" ]]; then
+  particle_name="proton"
+fi
+
 #####################################
 ###   Set important directories   ###
 #####################################
@@ -114,9 +127,9 @@ export THIS_HOST=${HOSTNAME:0:3} # export HOSTNAME to farms
 export SOFTDIR=${HOME}/software # same path but different variable than SOFT_DIR
 
 if [[ "${THIS_HOST}" == "ui0" ]]; then # USM cluster
-  export TOPOUDIR=/eos/user/${USER:0:1}/${USER}/particleSim
+  export TOPOUDIR=/eos/user/${USER:0:1}/${USER}/${particle_name}Sim
 elif [[ "${THIS_HOST}" == "ifa" ]]; then # JLAB cluster
-  export TOPOUDIR=/volatile/clas/claseg2/${USER}/particleSim
+  export TOPOUDIR=/volatile/clas/claseg2/${USER}/${particle_name}Sim
 fi
 
 if [[ ! -d ${SOFTDIR} ]]; then
@@ -203,7 +216,7 @@ for (( ir=${run1}; ir<=${run2}; ir++ )); do
     cd ${OUTDIR}
 
     jobfile="${OUTDIR}/job_particle.sh"
-    jobname=particleSim${tarName}_${srun}
+    jobname=${particle_name}_${tarName}_${srun}
     memusage="512"
 
     echo "#!/bin/bash"                                                   > ${jobfile}
