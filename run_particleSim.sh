@@ -223,7 +223,7 @@ for (( ir=${run1}; ir<=${run2}; ir++ )); do
     echo "#SBATCH -J ${jobname}"                                        >> ${jobfile}
     echo "#SBATCH -o ${OUTDIR}/job${tarName}.out"                       >> ${jobfile}
     echo "#SBATCH -e ${OUTDIR}/job${tarName}.err"                       >> ${jobfile}
-    echo "#SBATCH --time=3:00:00"                                       >> ${jobfile}
+    echo "#SBATCH --time=4:00:00"                                       >> ${jobfile}
     echo "#SBATCH --mem=${memusage}MB"                                  >> ${jobfile}
     echo ""                                                             >> ${jobfile}
     echo "sed -i \"s|^Nevts=|Nevts=${Nevts}|g\"             ${simfile}" >> ${jobfile}
