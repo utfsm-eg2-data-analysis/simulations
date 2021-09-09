@@ -217,14 +217,14 @@ for (( ir=${run1}; ir<=${run2}; ir++ )); do
 
     jobfile="${OUTDIR}/job_particle.sh"
     jobname=${particle_name}_${tarName}_${srun}
-    memusage="512"
+    memusage="2" # GB
 
     echo "#!/bin/bash"                                                   > ${jobfile}
     echo "#SBATCH -J ${jobname}"                                        >> ${jobfile}
     echo "#SBATCH -o ${OUTDIR}/job${tarName}.out"                       >> ${jobfile}
     echo "#SBATCH -e ${OUTDIR}/job${tarName}.err"                       >> ${jobfile}
     echo "#SBATCH --time=4:00:00"                                       >> ${jobfile}
-    echo "#SBATCH --mem=${memusage}MB"                                  >> ${jobfile}
+    echo "#SBATCH --mem=${memusage}GB"                                  >> ${jobfile}
     echo ""                                                             >> ${jobfile}
     echo "sed -i \"s|^Nevts=|Nevts=${Nevts}|g\"             ${simfile}" >> ${jobfile}
     echo "sed -i \"s|^pid=|pid=${pid}|g\"                   ${simfile}" >> ${jobfile}
